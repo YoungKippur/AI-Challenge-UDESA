@@ -3,18 +3,24 @@ using Core.Player;
 using Core.Utils;
 using UnityEngine;
 
-namespace Teams.ParticipantTeam
+namespace Teams.GermanTeam
 {
     public class PlayerOne : TeamPlayer
     {
         public override void OnUpdate()
         {
-            
+            float espera = 118 - GetTimeLeft();
+            if (GetTimeLeft() < espera)
+            {
+                var ballPosition = GetBallPosition();
+                var directionToBall = GetDirectionTo(ballPosition);
+                MoveBy(directionToBall);
+            }
         }
 
         public override void OnReachBall()
         {
-            
+            ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);
         }
 
         public override void OnScoreBoardChanged(ScoreBoard scoreBoard)
@@ -22,8 +28,8 @@ namespace Teams.ParticipantTeam
 
         }
 
-        public override FieldPosition GetInitialPosition() => FieldPosition.A2;
+        public override FieldPosition GetInitialPosition() => FieldPosition.C1;
 
-        public override string GetPlayerDisplayName() => "Player 1";
+        public override string GetPlayerDisplayName() => "Centro";
     }
 }
