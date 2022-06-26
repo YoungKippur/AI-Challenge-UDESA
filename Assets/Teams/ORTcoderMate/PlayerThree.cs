@@ -36,11 +36,11 @@ namespace Teams.ORTcoderMate
                 GoTo(GetBallPosition());
             } else if (Vector3.Distance(GetBallPosition(), GetMyGoalPosition()) > 8.0f) {
                 int x = GetMyGoalPosition()[0] > 0 ? -8 : 8;
-                int z = GetBallPosition()[2] > 0 ? 6 : -6;
+                int z = GetBallPosition()[2] > 0 ? -6 : 6;
                 GoTo(new Vector3(x, 0, z));
             } else {
                 int x = GetMyGoalPosition()[0] > 0 ? -4 : 4;
-                int z = GetBallPosition()[2] > 0 ? 6 : -6;
+                int z = GetBallPosition()[2] > 0 ? -6 : 6;
                 GoTo(new Vector3(x, 0, z));
             }
         }
@@ -50,11 +50,11 @@ namespace Teams.ORTcoderMate
             if (CanShoot(GetRivalGoalPosition(), 0.5f)) {
                 ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);
                 Debug.Log("Messi: Tiro al Arco");
-            } else if (CanShoot(GetTeamMatesInformation()[1].Position, 0.5f)) {
-                ShootBall(GetDirectionTo(GetTeamMatesInformation()[0].Position), ShootForce.Medium);
-                Debug.Log("Messi: Pase a Mid");
-            } else if (CanShoot(GetTeamMatesInformation()[1].Position, 1.0f)) {
+            } else if (CanShoot(GetTeamMatesInformation()[1].Position, 0.3f)) {
                 ShootBall(GetDirectionTo(GetTeamMatesInformation()[1].Position), ShootForce.Medium);
+                Debug.Log("Messi: Pase a Mid");
+            } else if (CanShoot(GetTeamMatesInformation()[0].Position, 1.0f)) {
+                ShootBall(GetDirectionTo(GetTeamMatesInformation()[0].Position), ShootForce.Medium);
                 Debug.Log("Messi: Pase a Goalie");
             } else {
                 ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);

@@ -64,10 +64,10 @@ namespace Teams.ORTcoderMate
 
         public override void OnReachBall()
         {
-            if (CanShoot(GetRivalGoalPosition(), 0.5f)) {
+            if (CanShoot(GetRivalGoalPosition(), 0.3f)) {
                 ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);
                 Debug.Log("Mid: Tiro al Arco");
-            } else if (CanShoot(GetTeamMatesInformation()[1].Position, 0.5f)) {
+            } else if (CanShoot(GetTeamMatesInformation()[1].Position, 0.3f)) {
                 ShootBall(GetDirectionTo(GetTeamMatesInformation()[1].Position), ShootForce.High);
                 Debug.Log("Mid: Pase a Messi");
             } else {

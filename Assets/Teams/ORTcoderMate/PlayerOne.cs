@@ -49,7 +49,7 @@ namespace Teams.ORTcoderMate
 
         public override void OnUpdate()
         {
-            if (IsNearest() && Vector3.Distance(GetBallPosition(), GetMyGoalPosition()) < 4.0f) {
+            if (IsNearest() && Vector3.Distance(GetBallPosition(), GetMyGoalPosition()) < 6.0f) {
                 GoTo(GetBallPosition());
             } else {
                 MoveBy(GetDirectionTo(GetPos()));
@@ -59,11 +59,11 @@ namespace Teams.ORTcoderMate
         public override void OnReachBall()
         {
             if (CanShoot(GetTeamMatesInformation()[0].Position, 0.5f)) {
-                ShootBall(GetDirectionTo(GetTeamMatesInformation()[0].Position), ShootForce.High);
-                Debug.Log("Goalie: Pase a Messi");
-            } else if (CanShoot(GetTeamMatesInformation()[1].Position, 0.5f)) {
-                ShootBall(GetDirectionTo(GetTeamMatesInformation()[1].Position), ShootForce.Medium);
+                ShootBall(GetDirectionTo(GetTeamMatesInformation()[0].Position), ShootForce.Medium);
                 Debug.Log("Goalie: Pase a Mid");
+            } else if (CanShoot(GetTeamMatesInformation()[1].Position, 1.0f)) {
+                ShootBall(GetDirectionTo(GetTeamMatesInformation()[1].Position), ShootForce.High);
+                Debug.Log("Goalie: Pase a Messi");
             } else if (CanShoot(GetRivalGoalPosition(), 1.0f)) {
                 ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);
                 Debug.Log("Goalie: Tiro al Arco");
