@@ -30,6 +30,14 @@ namespace Teams.ORTcoderMate
             return true;
         }
 
+        public Core.Games.ShootForce GetForce(Vector3 position)
+        {
+            float distance = Vector3.Distance(GetPosition(), position);
+            if (distance < 4.0f) { return ShootForce.Low; }
+            if (distance < 8.0f) { return ShootForce.Medium; }
+            return ShootForce.High;
+        }
+
         public override void OnUpdate()
         {
             if (IsNearest() || Vector3.Distance(GetBallPosition(), GetMyGoalPosition()) > 12.0f) {
@@ -47,14 +55,16 @@ namespace Teams.ORTcoderMate
 
         public override void OnReachBall()
         {
-            if (CanShoot(GetRivalGoalPosition(), 0.5f)) {
+            if (CanShoot(GetRivalGoalPosition(), 0.4f)) {
                 ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);
                 Debug.Log("Messi: Tiro al Arco");
             } else if (CanShoot(GetTeamMatesInformation()[1].Position, 0.3f)) {
-                ShootBall(GetDirectionTo(GetTeamMatesInformation()[1].Position), ShootForce.Medium);
+                Vector3 pos = GetTeamMatesInformation()[1].Position;
+                ShootBall(GetDirectionTo(pos), GetForce(pos));
                 Debug.Log("Messi: Pase a Mid");
             } else if (CanShoot(GetTeamMatesInformation()[0].Position, 1.0f)) {
-                ShootBall(GetDirectionTo(GetTeamMatesInformation()[0].Position), ShootForce.Medium);
+                Vector3 pos = GetTeamMatesInformation()[0].Position;
+                ShootBall(GetDirectionTo(pos), GetForce(pos));
                 Debug.Log("Messi: Pase a Goalie");
             } else {
                 ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);

@@ -41,6 +41,15 @@ namespace Teams.ORTcoderMate
             return GetMyScore() > GetRivalScore();
         }
 
+
+        public Core.Games.ShootForce GetForce(Vector3 position)
+        {
+            float distance = Vector3.Distance(GetPosition(), position);
+            if (distance < 4.0f) { return ShootForce.Low; }
+            if (distance < 8.0f) { return ShootForce.Medium; }
+            return ShootForce.High;
+        }
+
         public override void OnUpdate()
         {
             if (IsNearest()) {
@@ -68,10 +77,12 @@ namespace Teams.ORTcoderMate
                 ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);
                 Debug.Log("Mid: Tiro al Arco");
             } else if (CanShoot(GetTeamMatesInformation()[1].Position, 0.3f)) {
-                ShootBall(GetDirectionTo(GetTeamMatesInformation()[1].Position), ShootForce.High);
+                Vector3 pos = GetTeamMatesInformation()[1].Position;
+                ShootBall(GetDirectionTo(pos), GetForce(pos));
                 Debug.Log("Mid: Pase a Messi");
             } else {
-                ShootBall(GetDirectionTo(GetTeamMatesInformation()[0].Position), ShootForce.High);
+                Vector3 pos = GetTeamMatesInformation()[0].Position;
+                ShootBall(GetDirectionTo(pos), GetForce(pos));
                 Debug.Log("Mid: Pase a Golie");
             }
         }

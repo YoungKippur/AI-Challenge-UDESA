@@ -47,9 +47,17 @@ namespace Teams.ORTcoderMate
             return true;
         }
 
+        public Core.Games.ShootForce GetForce(Vector3 position)
+        {
+            float distance = Vector3.Distance(GetPosition(), position);
+            if (distance < 4.0f) { return ShootForce.Low; }
+            if (distance < 8.0f) { return ShootForce.Medium; }
+            return ShootForce.High;
+        }
+
         public override void OnUpdate()
         {
-            if (IsNearest() && Vector3.Distance(GetBallPosition(), GetMyGoalPosition()) < 6.0f) {
+            if (IsNearest() && (GetMyGoalPosition()[0] < 0 && GetBallPosition()[0] < -6) || (GetMyGoalPosition()[0] > 0 && GetBallPosition()[0] > 6)) {
                 GoTo(GetBallPosition());
             } else {
                 MoveBy(GetDirectionTo(GetPos()));
@@ -59,17 +67,19 @@ namespace Teams.ORTcoderMate
         public override void OnReachBall()
         {
             if (CanShoot(GetTeamMatesInformation()[0].Position, 0.5f)) {
-                ShootBall(GetDirectionTo(GetTeamMatesInformation()[0].Position), ShootForce.Medium);
+                Vector3 pos = GetTeamMatesInformation()[0].Position;
+                ShootBall(GetDirectionTo(pos), GetForce(pos));
                 Debug.Log("Goalie: Pase a Mid");
             } else if (CanShoot(GetTeamMatesInformation()[1].Position, 1.0f)) {
-                ShootBall(GetDirectionTo(GetTeamMatesInformation()[1].Position), ShootForce.High);
+                Vector3 pos = GetTeamMatesInformation()[1].Position;
+                ShootBall(GetDirectionTo(pos), GetForce(pos));
                 Debug.Log("Goalie: Pase a Messi");
             } else if (CanShoot(GetRivalGoalPosition(), 1.0f)) {
                 ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);
                 Debug.Log("Goalie: Tiro al Arco");
             } else {
                 int x = GetMyGoalPosition()[0] > 0 ? -10 : 10;
-                int z = 10;
+                int z = GetBallPosition()[2] > 0 ? -6: 6;
                 Vector3 newPos = new Vector3(x, 0, z);
                 if (CanShoot(newPos, 2.0f)) {
                     ShootBall(GetDirectionTo(newPos), ShootForce.High);
