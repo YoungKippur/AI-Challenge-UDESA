@@ -38,7 +38,7 @@ namespace Teams.ORTcoderMarcos
                     var posicionPelota = GetBallPosition();
                     var posicionMiArco = GetMyGoalPosition();
                     var posicionMia = GetPosition();
-                    var puntoMasCercano = ClosestPointOnLine(posicionMiArco - new Vector3(0.0f,0.0f,2f), posicionMiArco + new Vector3(0.0f,0.0f,2f), posicionPelota);
+                    var puntoMasCercano = ClosestPointOnLineAP(posicionPelota, posicionMiArco, posicionMia);
                     GoTo(puntoMasCercano);
                     break;
                 case OFENSIVO:
@@ -52,13 +52,13 @@ namespace Teams.ORTcoderMarcos
         {
             if (modo == DEFENSIVO){
                 modo = OFENSIVO;
-                var mejorPasee = mejorPase(GetRivalsInformation()[0].Position, GetRivalsInformation()[1].Position, GetRivalsInformation()[2].Position, GetTeamMatesInformation()[0].Position, GetTeamMatesInformation()[1].Position, GetPosition(), GetRivalGoalPosition());
+                var mejorPasee = mejorPase(GetRivalsInformation()[0].Position, GetRivalsInformation()[1].Position, GetRivalsInformation()[2].Position, GetTeamMatesInformation()[0].Position, GetTeamMatesInformation()[1].Position, GetPosition());
                 var directionPase = GetDirectionTo(mejorPasee);
                 ShootBall(directionPase, ShootForce.High);
                 modo = DEFENSIVO;
             }
             else{
-                var mejorPasee = mejorPase(GetRivalsInformation()[0].Position, GetRivalsInformation()[1].Position, GetRivalsInformation()[2].Position, GetTeamMatesInformation()[0].Position, GetTeamMatesInformation()[1].Position, GetPosition(), GetRivalGoalPosition());
+                var mejorPasee = mejorPase(GetRivalsInformation()[0].Position, GetRivalsInformation()[1].Position, GetRivalsInformation()[2].Position, GetTeamMatesInformation()[0].Position, GetTeamMatesInformation()[1].Position, GetPosition());
                 var directionPase = GetDirectionTo(mejorPasee);
                 ShootBall(directionPase, ShootForce.High);
             }
@@ -117,14 +117,14 @@ namespace Teams.ORTcoderMarcos
             return vClosestPoint;
         }
 
-        public static Vector3 mejorPase(Vector3 vO1, Vector3 vO2, Vector3 vO3, Vector3 vF1, Vector3 vF2, Vector3 vMe, Vector3 vArco){
-            Vector3[] positionOArray = new []{vO1, vO2, vO3, vArco};
+        public static Vector3 mejorPase(Vector3 vO1, Vector3 vO2, Vector3 vO3, Vector3 vF1, Vector3 vF2, Vector3 vMe){
+            Vector3[] positionOArray = new []{vO1, vO2, vO3};
             Vector3[] positionFArray = new []{vF1, vF2};
 
             var masLejano = 0.0f;
             var compa = 0;
 
-            for (int p = 0; p < 4; p++){
+            for (int p = 0; p < 3; p++){
                 var ClosestPoint = ClosestPointOnLine(vMe, positionOArray[p], positionFArray[0]);
                 var x = Vector3.Distance(ClosestPoint, positionOArray[p]);
                 if (x > masLejano){
@@ -132,7 +132,7 @@ namespace Teams.ORTcoderMarcos
                 }
             }
             
-            for (int p = 0; p < 4; p++){
+            for (int p = 0; p < 3; p++){
                 var ClosestPoint = ClosestPointOnLine(vMe, positionOArray[p], positionFArray[1]);
                 var x = Vector3.Distance(ClosestPoint, positionOArray[p]);
                 if (x > masLejano){

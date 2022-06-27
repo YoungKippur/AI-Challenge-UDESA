@@ -7,46 +7,84 @@ namespace Teams.ORTcoderMarcos
 {
     public class PlayerTwo : TeamPlayer
     {
-        const int DEFENSIVO = 0;
-        const int OFENSIVO = 1;
-        int modo = DEFENSIVO;
+        public bool CanShoot(Vector3 position, float maxDistance)
+        {
+            var startingPoint = GetPosition();
+            var direction = GetDirectionTo(position);
+            foreach (var player in GetRivalsInformation())
+            {
+                Vector3 point = player.Position;
+                Ray ray = new Ray(startingPoint, Vector3.Normalize(direction));
+                float distance = Vector3.Cross(ray.direction, point - ray.origin).magnitude;
+                if (distance < maxDistance) return false;
+            }
+            return true;
+        }
 
-        const float MAX_DIST_DEL_ARCO = 1f;
-        const float MIN_DIST_DEL_ARCO = 1f;
+        public bool IsNearest()
+        {
+            float distance = Vector3.Distance(GetPosition(), GetBallPosition());
+            float distance2 = Vector3.Distance(GetTeamMatesInformation()[0].Position, GetBallPosition());
+            float distance3 = Vector3.Distance(GetTeamMatesInformation()[1].Position, GetBallPosition());
+            float distance4 = Vector3.Distance(GetRivalsInformation()[0].Position, GetBallPosition());
+            float distance5 = Vector3.Distance(GetRivalsInformation()[1].Position, GetBallPosition());
+            return distance < distance2 && distance < distance3 && distance < distance4 && distance < distance5;
+        }
+
+        public bool IsBallNearOwnGoal()
+        {
+            return Vector3.Distance(GetMyGoalPosition(), GetBallPosition()) < 12.0f;
+        }
+
+        public bool IsLossing()
+        {
+            return GetMyScore() > GetRivalScore();
+        }
+
+
+        public Core.Games.ShootForce GetForce(Vector3 position)
+        {
+            float distance = Vector3.Distance(GetPosition(), position);
+            if (distance < 4.0f) { return ShootForce.Low; }
+            if (distance < 8.0f) { return ShootForce.Medium; }
+            return ShootForce.High;
+        }
 
         public override void OnUpdate()
         {
-            switch (modo)
-            {
-                case DEFENSIVO:
-                    var posicionEnemigo1 = GetRivalsInformation()[1].Position;
-                    var posicionEnemigo2 = GetRivalsInformation()[2].Position;
-                    var posicionMia = GetPosition();
-                    var marca = ClosestPointOnLineaa(posicionEnemigo1, posicionEnemigo2, posicionMia, GetBallPosition());
-                    GoTo(marca);
-                    var marca2 = ClosestPointOnLineaa(GetMyGoalPosition(), posicionEnemigo2, posicionMia, GetBallPosition());
-                    if (Vector3.Distance(posicionMia, GetBallPosition()) < 4.5f){
-                        modo = OFENSIVO;
-                    }
-                    else if (Vector3.Distance(posicionEnemigo1, posicionEnemigo2) > 8f){
-                        GoTo(marca2);
-                    }
-                    break;
-                case OFENSIVO:
-                    GoTo(GetBallPosition());
-                    if (Vector3.Distance(GetPosition(), GetBallPosition()) >= 4.5f){
-                        modo = DEFENSIVO;
-                    }
-                    break;
+            if (IsNearest()) {
+                GoTo(GetBallPosition());
+            } else if (Vector3.Distance(GetBallPosition(), GetMyGoalPosition()) < 4.0f) {
+                float x = GetMyGoalPosition()[0] > 0.0f ? 6.0f : -6.0f;
+                float z = GetBallPosition()[2] > 0 ? -4.0f : 4.0f;
+                GoTo(new Vector3(x, 0, z));
+            } else if (Vector3.Distance(GetBallPosition(), GetMyGoalPosition()) < 14.0f) {
+                GoTo(GetBallPosition());
+            } else if (IsLossing()) {
+                int x = GetMyGoalPosition()[0] > 0 ? -5 : 5;
+                int z = GetBallPosition()[2] > 0 ? -4 : 4;
+                GoTo(new Vector3(x, 0, z));
+            } else {
+                int x = GetMyGoalPosition()[0] > 0 ? -4 : 4;
+                int z = GetBallPosition()[2] > 0 ? -4 : 4;
+                GoTo(new Vector3(x, 0, z));
             }
         }
 
         public override void OnReachBall()
         {
-
-            var mejorPasee = mejorPase(GetRivalsInformation()[1].Position, GetRivalsInformation()[2].Position, GetRivalGoalPosition(), GetTeamMatesInformation()[1].Position, GetPosition(), GetRivalGoalPosition());
-	        var mejorPaseDirection = GetDirectionTo(mejorPasee);
-	        ShootBall(mejorPaseDirection, ShootForce.High);
+            if (CanShoot(GetRivalGoalPosition(), 0.3f)) {
+                ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);
+                Debug.Log("Mid: Tiro al Arco");
+            } else if (CanShoot(GetTeamMatesInformation()[1].Position, 0.3f)) {
+                Vector3 pos = GetTeamMatesInformation()[1].Position;
+                ShootBall(GetDirectionTo(pos), GetForce(pos));
+                Debug.Log("Mid: Pase a Messi");
+            } else {
+                Vector3 pos = GetTeamMatesInformation()[0].Position;
+                ShootBall(GetDirectionTo(pos), GetForce(pos));
+                Debug.Log("Mid: Pase a Golie");
+            }
         }
 
         public override void OnScoreBoardChanged(ScoreBoard scoreBoard)
@@ -54,81 +92,8 @@ namespace Teams.ORTcoderMarcos
 
         }
 
-        public override FieldPosition GetInitialPosition() => FieldPosition.B2;
+        public override FieldPosition GetInitialPosition() => FieldPosition.C2;
 
-        public override string GetPlayerDisplayName() => "El Marcas";
-
-        public static Vector3 ClosestPointOnLineaa(Vector3 vA, Vector3 vB, Vector3 vPoint, Vector3 vBall)
-        {
-            var vVector1 = vPoint - vA;
-            var vVector2 = (vB - vA).normalized;
-        
-            var d = Vector3.Distance(vA, vB);
-            var d2 = Vector3.Distance(vB, vPoint);
-            var d3 = Vector3.Distance(vA, vPoint);
-            var t = Vector3.Dot(vVector2, vVector1);
-
-            if ((t <= 0 || (d2 <= MIN_DIST_DEL_ARCO && d3 > MAX_DIST_DEL_ARCO))){
-                return vA;
-            }
-            if (t >= d || (d3 <= MAX_DIST_DEL_ARCO && d2 > MIN_DIST_DEL_ARCO)){
-                return vB;
-            }
-            if(t >= d || (d3 <= MAX_DIST_DEL_ARCO && d2 <= MIN_DIST_DEL_ARCO )){
-                return vBall;
-            }
-
-            var vVector3 = vVector2 * t;
-            var vClosestPoint = vA + vVector3;
-        
-            return vClosestPoint;
-        }
-
-        public static Vector3 ClosestPointOnLine(Vector3 vA, Vector3 vB, Vector3 vPoint)
-        {
-            var vVector1 = vPoint - vA;
-            var vVector2 = (vB - vA).normalized;
-        
-            var d = Vector3.Distance(vA, vB);
-            var t = Vector3.Dot(vVector2, vVector1);
-
-            if (t <= 0.0f){
-                return vA;
-            }
-            if (t >= d){
-                return vB;
-            }
-
-            var vVector3 = vVector2 * t;
-            var vClosestPoint = vA + vVector3;
-        
-            return vClosestPoint;
-        }
-
-        public static Vector3 mejorPase(Vector3 vO1, Vector3 vO2, Vector3 vF1, Vector3 vF2, Vector3 vMe, Vector3 vArco){
-            Vector3[] positionOArray = new []{vO1, vO2, vArco};
-            Vector3[] positionFArray = new []{vF1, vF2};
-
-            var masLejano = 0.0f;
-            var compa = 0;
-
-            for (int p = 0; p < 3; p++){
-                var ClosestPoint = ClosestPointOnLine(vMe, positionOArray[p], positionFArray[0]);
-                var x = Vector3.Distance(ClosestPoint, positionOArray[p]);
-                if (x > masLejano){
-                    compa = 0;
-                }
-            }
-            
-            for (int p = 0; p < 3; p++){
-                var ClosestPoint = ClosestPointOnLine(vMe, positionOArray[p], positionFArray[1]);
-                var x = Vector3.Distance(ClosestPoint, positionOArray[p]);
-                if (x > masLejano){
-                    compa = 1;
-                }
-            }
-
-            return positionFArray[compa];
-        }
+        public override string GetPlayerDisplayName() => "Mid";
     }
 }
