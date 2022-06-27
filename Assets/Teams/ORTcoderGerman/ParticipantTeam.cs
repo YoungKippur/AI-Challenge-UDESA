@@ -18,10 +18,10 @@ namespace Teams.ORTcoderGerman
 
         public TeamPlayer GetPlayerThree() => new PlayerThree();
         
-        public Color PrimaryColor => new Color(0.6f, 0.6f, 0.6f);
+        public Color PrimaryColor => new Color(0.0f, 0.6f, 0.0f);
 
         public string GetName() => "ORTcoderGerman";
 
-        public string TeamShield => "Black";
+        public string TeamShield => "Green";
     }
 }

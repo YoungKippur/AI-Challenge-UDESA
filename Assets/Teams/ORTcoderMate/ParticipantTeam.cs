@@ -3,7 +3,8 @@ using Core.Player;
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace Teams.MateTeam
+
+namespace Teams.ORTcoderMate
 {
     [UsedImplicitly]
     public class ExampleTeam : Team
@@ -18,10 +19,10 @@ namespace Teams.MateTeam
 
         public TeamPlayer GetPlayerThree() => new PlayerThree();
         
-        public Color PrimaryColor => new Color(0.6f, 0.6f, 0.6f);
+        public Color PrimaryColor => new Color(0.6f, 0.0f, 0.0f);
 
-        public string GetName() => "Mate Team";
+        public string GetName() => "ORTcoderMate";
 
-        public string TeamShield => "Black";
+        public string TeamShield => "Red";
     }
 }
