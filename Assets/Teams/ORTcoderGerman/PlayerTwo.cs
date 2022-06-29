@@ -25,9 +25,8 @@ namespace Teams.ORTcoderGerman
                 }
                 else
                 {
-                    int x = GetMyGoalPosition()[0] > 0 ? -5 : 5;
-                    int z = GetBallPosition()[2] > 0 ? -4 : 4;
-                    GoTo(new Vector3(x, 0, z));
+                    int x = GetMyGoalPosition()[0] > 0 ? -7 : 7;
+                    GoTo(new Vector3(x, 0, 0));
                 }
             }
             else
@@ -69,22 +68,27 @@ namespace Teams.ORTcoderGerman
             {
             if (IsLossing() && GetTimeLeft() <= 15)
             {
-                if (CanShoot(GetRivalGoalPosition(), 0.3f))
+                if(GetTimeLeft() <= 3)
                 {
                     ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);
-                    Debug.Log("Mid: Tiro al Arco");
+                    Debug.Log("Caballero: Tiro al Arco");
+                }
+                else if (CanShoot(GetRivalGoalPosition(), 0.3f))
+                {
+                    ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);
+                    Debug.Log("Caballero: Tiro al Arco");
                 }
                 else if (CanShoot(GetTeamMatesInformation()[1].Position, 0.3f))
                 {
                     Vector3 pos = GetTeamMatesInformation()[1].Position;
                     ShootBall(GetDirectionTo(pos), GetForce(pos));
-                    Debug.Log("Mid: Pase a Messi");
+                    Debug.Log("Caballero: Pase a Messi");
                 }
                 else
                 {
                     Vector3 pos = GetTeamMatesInformation()[0].Position;
                     ShootBall(GetDirectionTo(pos), GetForce(pos));
-                    Debug.Log("Mid: Pase a Golie");
+                    Debug.Log("Caballero: Pase a Di Maria");
                 }
             }
             else
@@ -193,7 +197,6 @@ namespace Teams.ORTcoderGerman
             return positionFArray[compa];
         }
 
-        // El Jugador mas cercano a la bolA 
         public static float ClosestOPlayerToBall(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 e, Vector3 vBall)
         {
             Vector3[] positionArray = new[] { a, b, c, d, e };
@@ -211,7 +214,6 @@ namespace Teams.ORTcoderGerman
             return masCercano;
         }
 
-         // El jugador mas cercano enemigo mas cercano al arco 
         public static float ClosestOPlayerToArco(Vector3 a, Vector3 b, Vector3 c, Vector3 vArco)
         {
             var masCercano = 99999.0f;
@@ -226,10 +228,12 @@ namespace Teams.ORTcoderGerman
             }
             return masCercano;
         }
+
         public bool IsLossing()
         {
             return GetMyScore() < GetRivalScore();
         }
+
         public bool IsNearest()
         {
             float distance = Vector3.Distance(GetPosition(), GetBallPosition());
@@ -239,6 +243,7 @@ namespace Teams.ORTcoderGerman
             float distance5 = Vector3.Distance(GetRivalsInformation()[1].Position, GetBallPosition());
             return distance < distance2 && distance < distance3 && distance < distance4 && distance < distance5;
         }
+
         public bool CanShoot(Vector3 position, float maxDistance)
         {
             var startingPoint = GetPosition();
@@ -252,6 +257,7 @@ namespace Teams.ORTcoderGerman
             }
             return true;
         }
+
         public Core.Games.ShootForce GetForce(Vector3 position)
         {
             float distance = Vector3.Distance(GetPosition(), position);

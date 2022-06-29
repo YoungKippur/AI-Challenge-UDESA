@@ -65,6 +65,6 @@ namespace Teams.ORTcoderGerman
 
         public override FieldPosition GetInitialPosition() => FieldPosition.C2;
 
-        public override string GetPlayerDisplayName() => "Pases";
+        public override string GetPlayerDisplayName() => "Di Maria";
     }
 }
