@@ -7,6 +7,7 @@ namespace Teams.ORTcoderGerman
 {
     public class PlayerTwo : TeamPlayer
     {
+        float espera = 0;
         const int DEFENSIVO = 0;
         const int OFENSIVO = 1;
         int modo = DEFENSIVO;
@@ -17,20 +18,52 @@ namespace Teams.ORTcoderGerman
 
         public override void OnUpdate()
         {
-            if (IsLossing() && GetTimeLeft() <=15)
+            if (IsLossing() && GetTimeLeft() <= 15 && GetTimeLeft() <= espera)
             {
                 if (IsNearest())
                 {
                     GoTo(GetBallPosition());
                 }
+                else if (Vector3.Distance(GetBallPosition(), GetMyGoalPosition()) < 6.0f)
+                {
+                    GoTo(GetBallPosition());
+                }
                 else
                 {
-                    int x = GetMyGoalPosition()[0] > 0 ? -7 : 7;
-                    GoTo(new Vector3(x, 0, 0));
+                    var PlayerOMasCercano = ClosestOPlayerToBall(GetRivalsInformation()[0].Position, GetRivalsInformation()[1].Position, GetRivalsInformation()[2].Position, GetTeamMatesInformation()[0].Position, GetTeamMatesInformation()[1].Position, GetBallPosition());
+                    var DistanciaBola = Vector3.Distance(GetPosition(), GetBallPosition());
+
+                    var PlayerOMasCercano2 = ClosestOPlayerToArco(GetRivalsInformation()[0].Position, GetRivalsInformation()[1].Position, GetRivalsInformation()[2].Position, GetMyGoalPosition());
+
+                    var DistanciaArco = Vector3.Distance(GetPosition(), GetMyGoalPosition());
+
+                    if (PlayerOMasCercano > DistanciaBola && PlayerOMasCercano2 > DistanciaArco - 0.5f)
+                    {
+                        modo = OFENSIVO;
+                    }
+                    else
+                    {
+                        modo = DEFENSIVO;
+                    }
+
+                    switch (modo)
+                    {
+                        case DEFENSIVO:
+                            var posicionPelota = GetBallPosition();
+                            var posicionMiArco = GetMyGoalPosition();
+                            var posicionMia = GetPosition();
+                            var puntoMasCercano = ClosestPointOnLineAP(posicionPelota, posicionMiArco, posicionMia);
+                            GoTo(puntoMasCercano);
+                            break;
+                        case OFENSIVO:
+                            GoTo(GetBallPosition());
+                            break;
+                    }
+                    Debug.DrawLine(GetBallPosition(), GetMyGoalPosition(), Color.magenta, 0.2f);
                 }
             }
             else
-            { 
+            {
                 var PlayerOMasCercano = ClosestOPlayerToBall(GetRivalsInformation()[0].Position, GetRivalsInformation()[1].Position, GetRivalsInformation()[2].Position, GetTeamMatesInformation()[0].Position, GetTeamMatesInformation()[1].Position, GetBallPosition());
                 var DistanciaBola = Vector3.Distance(GetPosition(), GetBallPosition());
 
@@ -82,13 +115,33 @@ namespace Teams.ORTcoderGerman
                 {
                     Vector3 pos = GetTeamMatesInformation()[1].Position;
                     ShootBall(GetDirectionTo(pos), GetForce(pos));
-                    Debug.Log("Caballero: Pase a Messi");
+                    Debug.Log("Caballero: Pase a Maradona");
                 }
                 else
                 {
                     Vector3 pos = GetTeamMatesInformation()[0].Position;
                     ShootBall(GetDirectionTo(pos), GetForce(pos));
                     Debug.Log("Caballero: Pase a Di Maria");
+                }
+            }
+            else if (IsWinning())
+            {
+                if (CanShoot(GetTeamMatesInformation()[0].Position, 0.3f))
+                {
+                    Vector3 pos = GetTeamMatesInformation()[0].Position;
+                    ShootBall(GetDirectionTo(pos), GetForce(pos));
+                    Debug.Log("Caballero: Pase a Di Maria");
+                }
+                else if (CanShoot(GetRivalGoalPosition(), 0.1f))
+                {
+                    ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);
+                    Debug.Log("Caballero: Tiro al Arco");
+                }
+                else
+                {
+                    Vector3 pos = GetTeamMatesInformation()[1].Position;
+                    ShootBall(GetDirectionTo(pos), GetForceW(pos));
+                    Debug.Log("Caballero: Pase a Maradona");
                 }
             }
             else
@@ -112,8 +165,9 @@ namespace Teams.ORTcoderGerman
          }
          public override void OnScoreBoardChanged(ScoreBoard scoreBoard)
          {
-
-         }
+            float tLeft = GetTimeLeft();
+            espera = tLeft - 2.5f;
+        }
 
         public override FieldPosition GetInitialPosition() => FieldPosition.A2;
 
@@ -233,6 +287,10 @@ namespace Teams.ORTcoderGerman
         {
             return GetMyScore() < GetRivalScore();
         }
+        public bool IsWinning()
+        {
+            return GetMyScore() > GetRivalScore();
+        }
 
         public bool IsNearest()
         {
@@ -241,7 +299,8 @@ namespace Teams.ORTcoderGerman
             float distance3 = Vector3.Distance(GetTeamMatesInformation()[1].Position, GetBallPosition());
             float distance4 = Vector3.Distance(GetRivalsInformation()[0].Position, GetBallPosition());
             float distance5 = Vector3.Distance(GetRivalsInformation()[1].Position, GetBallPosition());
-            return distance < distance2 && distance < distance3 && distance < distance4 && distance < distance5;
+            float distance6 = Vector3.Distance(GetRivalsInformation()[2].Position, GetBallPosition());
+            return distance < distance2 && distance < distance3 && distance < distance4 && distance < distance5 && distance < distance6;
         }
 
         public bool CanShoot(Vector3 position, float maxDistance)
@@ -264,6 +323,12 @@ namespace Teams.ORTcoderGerman
             if (distance < 4.0f) { return ShootForce.Low; }
             if (distance < 8.0f) { return ShootForce.Medium; }
             return ShootForce.High;
+        }
+        public Core.Games.ShootForce GetForceW(Vector3 position)
+        {
+            float distance = Vector3.Distance(GetPosition(), position);
+            if (distance < 6.5f) { return ShootForce.Low; }
+            return ShootForce.Medium;
         }
     }
 }
