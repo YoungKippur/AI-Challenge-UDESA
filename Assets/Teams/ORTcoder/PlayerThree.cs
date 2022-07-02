@@ -3,7 +3,7 @@ using Core.Player;
 using Core.Utils;
 using UnityEngine;
 
-namespace Teams.ORTcoderMarcos
+namespace Teams.ORTcoder
 {
     public class PlayerThree : TeamPlayer
     {
@@ -57,18 +57,18 @@ namespace Teams.ORTcoderMarcos
         {
             if (CanShoot(GetRivalGoalPosition(), 0.4f)) {
                 ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);
-                Debug.Log("Messi: Tiro al Arco");
+                Debug.Log("Mate: Tiro al Arco");
             } else if (CanShoot(GetTeamMatesInformation()[1].Position, 0.3f)) {
                 Vector3 pos = GetTeamMatesInformation()[1].Position;
                 ShootBall(GetDirectionTo(pos), GetForce(pos));
-                Debug.Log("Messi: Pase a Mid");
+                Debug.Log("Mate: Pase a German");
             } else if (CanShoot(GetTeamMatesInformation()[0].Position, 1.0f)) {
                 Vector3 pos = GetTeamMatesInformation()[0].Position;
                 ShootBall(GetDirectionTo(pos), GetForce(pos));
-                Debug.Log("Messi: Pase a Goalie");
+                Debug.Log("Mate: Pase a Kippur");
             } else {
                 ShootBall(GetDirectionTo(GetRivalGoalPosition()), ShootForce.High);
-                Debug.Log("Messi: Tiro al Arco");
+                Debug.Log("Mate: Tiro al Arco");
             }
         }
 
@@ -79,6 +79,6 @@ namespace Teams.ORTcoderMarcos
 
         public override FieldPosition GetInitialPosition() => FieldPosition.C3;
 
-        public override string GetPlayerDisplayName() => "Messi";
+        public override string GetPlayerDisplayName() => "Mate";
     }
 }

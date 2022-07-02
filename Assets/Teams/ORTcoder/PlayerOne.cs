@@ -5,7 +5,7 @@ using UnityEngine;
 
 // Con GetMyGoalPosition() Podemos saber de que lado de la porteria estamos
 
-namespace Teams.ORTcoderMarcos
+namespace Teams.ORTcoder
 {
     public class PlayerOne : TeamPlayer
     {   
